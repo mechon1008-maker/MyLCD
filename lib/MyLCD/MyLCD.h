@@ -63,7 +63,7 @@ public:
 
     // BASIC COMMANDS
     void clear();   // clear display
-    void setCursor(uint8_t col, uint8_t row); // set the cursor at particular row and particular column
+    void setCursor(uint8_t col, uint8_t row); // set cursor position: col = column (x), row = line (y)
     void writeChar(uint8_t c); // writes one character on screen
     void displayOn();
     void displayOff();

@@ -70,7 +70,7 @@ void setup(){
   lcd.setCursor(0,0);
   lcd.print("Hello Peeps !!");
 
-  lcd.setCursor(1,0);
+  lcd.setCursor(0,1);
   lcd.print("It worked.");
 
   // Custom character (CGRAM) demo - uncomment to try it:
@@ -90,7 +90,7 @@ void loop(){
   lcd.blinkOn();
   for (uint8_t i = 0; i < LCD_COLS; i++)
   {
-    lcd.setCursor(0,i);
+    lcd.setCursor(i,0);
     lcd.writeChar('a' + i);
     delay(500);
   }
@@ -98,7 +98,7 @@ void loop(){
   lcd.cursorOff();
   for (uint8_t i = 0; i < LCD_COLS; i++)
   {
-    lcd.setCursor(1,i);
+    lcd.setCursor(i,1);
     lcd.writeChar('A' + i);
     delay(500);
   }
