@@ -19,17 +19,17 @@ typedef struct LCD_HAL_t {
 }LCD_HAL_t;
 
 // COMMANDS FROM HD44780 AND 16X2 LCD LIBRARY INSTRUCTION SET
-#define LCD_CLEARDISPLAY   0X01 // TO CLEAR DISPLAY
-#define LCD_RETURNHOME     0X02 // RETURN HOME
-#define LCD_ENTRYMODESET   0X04 // ENTRY MODE SET (INCREMENT CURSOR BY 1, SHIFT BY 0)
-#define LCD_DISPLAYCONTROL 0X08 // DISPLAY CONTROL
-#define LCD_FUNCTIONSET    0X20 // SET INTERFACE MODE
+#define LCD_CLEARDISPLAY   0x01 // TO CLEAR DISPLAY
+#define LCD_RETURNHOME     0x02 // RETURN HOME
+#define LCD_ENTRYMODESET   0x04 // ENTRY MODE SET (INCREMENT CURSOR BY 1, SHIFT BY 0)
+#define LCD_DISPLAYCONTROL 0x08 // DISPLAY CONTROL
+#define LCD_FUNCTIONSET    0x20 // SET INTERFACE MODE
 
 // Mask Control FUNCTIONSET
-#define LCD_4BITMODE  0X00 //DL=0
+#define LCD_4BITMODE  0x00 //DL=0
 #define LCD_ONELINE   0x00 //N=0
 #define LCD_TWOLINE   0x08 //N=1
-#define LCD_5x8DOTS   0X00 //F=0(5X8)
+#define LCD_5x8DOTS   0x00 //F=0(5X8)
 
 // Mask Control display
 #define LCD_DISPLAYON  0x04 // display ON
@@ -39,6 +39,17 @@ typedef struct LCD_HAL_t {
 // Mask Entry Mode SET
 #define LCD_INCREMENT  0x02 // increment by 1
 #define LCD_SHIFT      0x01 // Shift display
+
+// HAL LEVEL CONSTANTS (values passed through the HAL function pointers)
+#define LCD_INPUT      0
+#define LCD_OUTPUT     1
+#define LCD_LOW        0
+#define LCD_HIGH       1
+
+// Set DDRAM & CGRAM ADDRESS
+#define LCD_SETDDRAMADDR 0x80 // DDRAM ADDRESS
+#define LCD_SETCGRAMADDR 0x40 // CGRAM ADDRESS
+
 
 // CLASS DEFINITION
 class MyLCD{
@@ -52,7 +63,7 @@ public:
 
     // BASIC COMMANDS
     void clear();   // clear display
-    void setCursor(uint8_t rows, uint8_t cols); // set the cursor at particular row and particular column
+    void setCursor(uint8_t col, uint8_t row); // set the cursor at particular row and particular column
     void writeChar(uint8_t c); // writes one character on screen
     void displayOn();
     void displayOff();
@@ -60,6 +71,9 @@ public:
     void cursorOff();
     void blinkOn();
     void blinkOff();
+    void createChar(uint8_t slot, const uint8_t *pattern);
+    void home();
+    void print(const char* str);
 
 private:
     // PRIVATE HELPERS: INTERNAL IMPLEMENTATION
@@ -76,6 +90,6 @@ private:
     uint8_t _data_pins[4] = {0,0,0,0};  // Store data_pins DB7-DB4
     uint8_t _cols = 0;
     uint8_t _rows = 0;
-    uint8_t _displayControl = 0x0; // control display state
+    uint8_t _displayControl = LCD_DISPLAYON; // control display state
 };
 #endif //MY_LCD_H

@@ -21,15 +21,16 @@ MyLCD::MyLCD(
 
 void MyLCD::begin(uint8_t cols, uint8_t rows)
 {
+    if (!_hal) return; // Guard: the user must provide a HAL
     _cols = cols;
     _rows = rows;
-    // Step A: Configure all pin as output "1" from the DEV BOARD.
-    _hal->pinMode(_rs, 1); // Setting register_select pin as output.
-    _hal->pinMode(_en, 1); // Setting enable pin as output 
+    // Step A: Configure all pin as output from the DEV BOARD.
+    _hal->pinMode(_rs, LCD_OUTPUT); // Setting register_select pin as output.
+    _hal->pinMode(_en, LCD_OUTPUT); // Setting enable pin as output 
     for(int i = 0; i<4; i++) // Setting data_pins as output 
-        _hal->pinMode(_data_pins[i], 1);
+        _hal->pinMode(_data_pins[i], LCD_OUTPUT);
     
-    _hal->digitalWrite(_rs,0);
+    _hal->digitalWrite(_rs, LCD_LOW);
     // Step B: The 4-bit Initialization sequence (from HD44780 Datasheet) 
     // Wait for atleast 50ms after power on
     _hal->delayMs(50);
@@ -113,42 +114,65 @@ void MyLCD::writeChar(uint8_t c){
     sendData(c);
 }
 
-void MyLCD::setCursor(uint8_t row, uint8_t col)
+void MyLCD::setCursor(uint8_t col, uint8_t row)
 {
+    if(_rows ==0 || _cols == 0) return ;
     if (row >= _rows) row = _rows - 1;
     if (col >= _cols) col = _cols - 1;
-    uint8_t rowOffset[] = {0x00, 0x40};
-    sendCommand(0x80 | (rowOffset[row] | col));
+    static const uint8_t rowOffset[] = {0x00, 0x40, 0x14, 0x54};
+    if(row > 3) row = 3;
+    sendCommand(LCD_SETDDRAMADDR | (rowOffset[row] + col));
 }
 
 void MyLCD::displayOn()
 {   
-    _displayControl |= 0x00;
-    _displayControl |= LCD_DISPLAYON | LCD_DISPLAYCONTROL;
-    sendCommand(_displayControl);
+    _displayControl |= LCD_DISPLAYON;
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
 }
 void MyLCD::displayOff()    
 {   
     _displayControl &= ~LCD_DISPLAYON;
-    sendCommand(_displayControl);
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
 }
 void MyLCD::cursorOn()
 {
     _displayControl |= LCD_CURSORON;
-    sendCommand(_displayControl);
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
 }
 void MyLCD::cursorOff()
 {
     _displayControl &= ~LCD_CURSORON;
-    sendCommand(_displayControl);
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
 }
 void MyLCD::blinkOff()
 {
     _displayControl &= ~LCD_BLINKON;
-    sendCommand(_displayControl);
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
 }
 void MyLCD::blinkOn()
 {
     _displayControl |= LCD_BLINKON;
-    sendCommand(_displayControl);
+    sendCommand(LCD_DISPLAYCONTROL | _displayControl);
+}
+void MyLCD::createChar(uint8_t slot, const uint8_t *pattern)
+{
+    if (slot > 7) return;
+    sendCommand(LCD_SETCGRAMADDR | (slot * 8));
+    for (uint8_t i = 0; i<8 ; i++)
+        sendData(pattern[i]);
+    sendCommand(LCD_SETDDRAMADDR);
+}
+void MyLCD::home()
+{
+    sendCommand(LCD_RETURNHOME);
+    _hal->delayMs(2);
+}
+void MyLCD::print(const char* str)
+{
+    if (!str) return; // Guard against nullptr
+    while(*str)
+    {
+        writeChar(*str);
+        str++;
+    }
 }

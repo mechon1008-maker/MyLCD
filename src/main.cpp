@@ -1,4 +1,4 @@
-// Inlcude libraries
+// Include libraries
 #include <Arduino.h>
 #include "MyLCD.h"
 
@@ -14,6 +14,17 @@ const uint8_t PIN_D7 = 2;
 const uint8_t LCD_ROWS = 2;
 const uint8_t LCD_COLS = 16;
 
+// Custom characters (CGRAM) demo data
+const uint8_t patterns[8][8] = {
+    {0x00,0x0A,0x1F,0x1F,0x1F,0x0E,0x04,0x00},  // heart
+    {0x00,0x00,0x0A,0x0A,0x0A,0x11,0x0E,0x00},  // sad face
+    {0x00,0x00,0x0A,0x00,0x11,0x0E,0x00,0x00},  // wink
+    {0x1F,0x11,0x11,0x11,0x11,0x11,0x11,0x1F},  // box
+    {0x00,0x0E,0x11,0x11,0x11,0x11,0x0E,0x00},  // circle
+    {0x04,0x0A,0x11,0x11,0x11,0x11,0x0A,0x04},  // diamond
+    {0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F},  // filled block
+    {0x00,0x01,0x02,0x14,0x08,0x14,0x02,0x01},  // random arrow-ish
+};
 // Arduino Wrapper Functions
 // 1. Pin Mode
 void arduino_pinMode(uint8_t pin, uint8_t mode)
@@ -54,56 +65,44 @@ MyLCD lcd(&myHAL, PIN_RS, PIN_EN, PIN_D4, PIN_D5, PIN_D6, PIN_D7);
 void setup(){
   // Initialize LCD
   lcd.begin(LCD_COLS, LCD_ROWS);
-
   lcd.clear();
-  // lcd.cursorOff();
+
   lcd.setCursor(0,0);
+  lcd.print("Hello Peeps !!");
 
-  const char* message = "Hello, HAL!";
-  for(int i=0; message[i] != '\0'; i++){
-    lcd.writeChar(message[i]);
-  }
-  delay(1000);
-  lcd.clear();
+  lcd.setCursor(1,0);
+  lcd.print("It worked.");
+
+  // Custom character (CGRAM) demo - uncomment to try it:
+  // for (uint8_t i = 0; i < 8; i++) {
+  //   lcd.createChar(i, patterns[i]);
+  // }
+  // lcd.setCursor(0, 0);
+  // for (uint8_t i = 0; i < 8; i++) {
+  //   lcd.writeChar(i);
+  // }
+
+  delay(5000);
 }
 
 void loop(){
-  // lcd.clear();
-  // lcd.displayOn();
   lcd.cursorOn();
   lcd.blinkOn();
-  for (int i = 0; i<16; i++)
+  for (uint8_t i = 0; i < LCD_COLS; i++)
   {
     lcd.setCursor(0,i);
     lcd.writeChar('a' + i);
     delay(500);
-    // lcd.clear();
   }
   delay(1000);
   lcd.cursorOff();
-  for (int i = 0; i<16; i++)
+  for (uint8_t i = 0; i < LCD_COLS; i++)
   {
     lcd.setCursor(1,i);
     lcd.writeChar('A' + i);
     delay(500);
-    // lcd.clear();
   }
   delay(1000);
   lcd.clear();
-  // lcd.setCursor(0,0);
-  // lcd.writeChar('A');
-  // lcd.setCursor(1,2);
-  // lcd.writeChar('B');
-
-  // const char* line1 = "LINE 1";
-  // for(int i=0; line1[i] != '\0'; i++)
-  //   lcd.writeChar(line1[i]);
-  // delay (1000);
-
-  // lcd.setCursor(2,4);
-  // const char* line2 = "LINE 2";
-  // for(int i=0; line2[i] != '\0'; i++)
-  //   lcd.writeChar(line2[i]);
-  // delay(1000);
 }
 
